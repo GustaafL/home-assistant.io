@@ -18,9 +18,9 @@ ha_quality_scale: silver
 
 
 
-The FlexMeasures integration offers an integration with [FlexMeasures](https://flexmeasures.io/) instances to schedule flexible energy assets.
+The `flexmeasures` integration offers an integration with [FlexMeasures](https://flexmeasures.io/) instances to schedule flexible energy assets.
 
-FlexMeasures can be used to schedule batteries, EV's, heat storage and other assets. The integration offers:
+FlexMeasures can be used to schedule batteries, EV's, heat storage, and other assets. The integration offers:
 
 - A sensor for flexible asset schedules
 - A service to retrieve a schedule
@@ -65,84 +65,42 @@ power_sensor:
   description: The power sensor that will be scheduled to draw or supply power.
   required: true
   type: integer
-power_sensor:
-  description: The power sensor that will be scheduled to draw or supply power.
+consumption_price_sensor:
+  description: The price sensor for the consumption of power to use for the optimization.
   required: true
   type: integer
-update_interval:
-  description: The interval between updates if the climate control is off and the car is not charging. Set in any time unit (e.g.,  minutes, hours, days!). Providing a low interval will cause the service to refresh more frequently and can negatively impact your 12V battery. 
-  required: false
-  default: 1 hour
-  type: time
-update_interval_charging:
-  description: The interval in minutes between updates if charging.
-  required: false
-  default: 15
-  type: time
-update_interval_climate:
-  description: The interval in minutes between updates if climate control on.
-  required: false
-  default: 5
-  type: time
+production_price_sensor:
+  description: The price sensor for the production of power to use for the optimization (this can be the same as the consumption price sensor).
+  required: true
+  type: integer
+soc_sensor:
+  description: The state of charge sensor of the flexible energy asset.
+  required: true
+  type: integer
+rm_discharge_sensor:
+  description: The resource manager discharge sensor.
+  required: true
+  type: integer
+schedule_duration:
+  description: The duration for which the schedules should be calculated in hours.
+  required: true
+  default: 24
+  type: integer
+soc_unit:
+  description: The state of charge unit of energy.
+  required: true
+  default: kWh
+  type: string
+soc_min:
+  description: The minimal state of charge that the flexible energy asset is allowed to reach.
+  required: true
+  type: float
+soc_max:
+  description: The maximum state of charge that the flexible energy asset is allowed to reach.
+  required: true
+  type: float
 {% endconfiguration %}
 
 {% include integrations/config_flow.md %}
 
-## Sensors
-
-The integration adds the following sensors only if your utility provides forecasted usage/cost:
-
-For electricity:
-
-- Current bill electric usage to date
-- Current bill electric cost to date
-- Current bill electric forecasted usage (for the first few days of the bill this is 0)
-- Current bill electric forecasted cost (for the first few days of the bill this is 0)
-- Typical monthly electric usage
-- Typical monthly electric cost
-
-For gas:
-
-- Current bill gas usage to date
-- Current bill gas cost to date
-- Current bill gas forecasted usage (for the first few days of the bill this is 0)
-- Current bill gas forecasted cost (for the first few days of the bill this is 0)
-- Typical monthly gas usage
-- Typical monthly gas cost
-
-Note the unit for gas is CCF (centum cubic feet). 1 CCF is one hundred cubic feet which is equivalent to 1 therm.
-
-## Energy
-
-Because utilities only release usage/cost data with a 48-hour delay, the integration inserts data into statistic objects.
-You can find the statistics in {% my developer_statistics title="**Developer Tools** > **Statistics**"%} and search for "opower".
-**This delay means that there will be no data in the energy dashboard for today and likely yesterday** (depending on time of day you are checking).
-
-At the initial setup, the integration pulls historical monthly usage/cost since the account activation. If the utility provides more granular data, it pulls daily usage/cost for the past 3 years and hourly usage/cost for the past 2 months (note: typically, utilities provide only monthly or daily data for gas).
-After the initial setup, the integration keeps pulling data (twice per day) for the past 30 days to allow for any corrections in the data from the utilities.
-
-In the configuration of the energy dashboard (**{% my config_energy title="Settings > Dashboards > Energy" %}**):
-
-For electricity:
-
-1. Select **Add consumption** for the **Electricity grid**.
-2. Select **Opower {utility name} elec {account number} consumption** for the **consumed energy**.
-3. Select the radio button to **Use an entity tracking the total costs**.
-4. Select **Opower {utility name} elec {account number} cost** for the **entity with the total costs**.
-
-Your **Configure grid consumption** should now look like this:
-![Screenshot configure grid consumption](/images/integrations/opower/configure_grid_consumption.png)
-
-For gas:
-
-1. Select **Add gas source** for the **Gas consumption**.
-2. Select **Opower {utility name} gas {account number} consumption** for the **gas usage**.
-3. Select the radio button to **Use an entity tracking the total costs**.
-4. Select **Opower {utility name} gas {account number} cost** for the **entity with the total costs**.
-
-Your **Configure gas consumption** should now look like this:
-![Screenshot configure gas consumption](/images/integrations/opower/configure_gas_consumption.png)
-
-With the above changes your (**{% my config_energy title="Settings > Dashboards > Energy" %}**) page should now look like this:
-
-![Screenshot Energy Configuration](/images/integrations/opower/energy_config.png)
+## 
