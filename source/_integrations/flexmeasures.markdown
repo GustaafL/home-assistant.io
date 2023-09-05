@@ -103,4 +103,38 @@ soc_max:
 
 {% include integrations/config_flow.md %}
 
-## 
+## Schedule Sensor
+
+The Flexmeasures Schedule sensor shows the values of the power draw or supply at the start of each interval. It contains a startdatetime, unit of measurement, and a device class as well. The schedule is automatically shifted up to be in line with the sensor resolution. 
+
+```
+schedule:
+  - start: '2023-09-04T17:45:00+02:00'
+    value: -0.5
+  - start: '2023-09-04T18:00:00+02:00'
+    value: -0.5
+start: '2023-09-04T17:45:00+02:00'
+unit_of_measurement: MWh
+device_class: energy
+friendly_name: FlexMeasures Schedule
+```
+
+## The scheduling service
+
+For a schedule to be calculated a `soc_at_start` is required. All other variables needed to calculate a new schedule were provided in the configuration. The following `yaml` file will trigger a schedule and update the sensor:
+
+```
+service: flexmeasures.trigger_and_get_schedule
+data:
+  soc_at_start: "FLOAT_SOC_AT_START"
+```
+
+## Automate scheduling
+
+The intended usage of FlexMeasures is letting the schedules and Home Assistant optimize the flexible energy assets without user interaction. Automations can be used to trigger new schedules when new information is available that would impact the schedule. Some examples of events that should trigger the request of new schedules are when the battery/asset is connected, when new prices are available, and periodically to match the executed schedule to the calculated schedule. The user will need to provide a Home Assistant entity as a `soc_at_start` to be used for triggering a schedule. This is an example `yaml` for the action set in the automations:
+
+```
+service: flexmeasures.trigger_and_get_schedule
+data:
+  soc_at_start: "\{\{ state_attr\('SENSOR_TYPE.SENSOR', 'SENSOR_ATTRIBUTES'\) \}\}"
+```
